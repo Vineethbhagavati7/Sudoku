@@ -1,0 +1,164 @@
+#include<iostream>
+#include<math.h>
+using namespace std;
+class sudoku
+{
+public:
+    sudoku();
+    void initializeSudokuGrid();
+    void printSudokuGrid();
+    bool solveSudoku();
+    bool findEmptyGridSlot(int &row, int &col);
+    bool canPlaceNum(int row, int col, int num);
+    bool numAlreadyInRow(int row, int num);
+    bool numAlreadyInCol(int col, int num);
+    bool numAlreadyInBox(int smallGridRow, int smallGridCol, int num);
+    int grid[9][9];
+};
+
+sudoku::sudoku()
+{
+    for (int i = 0; i < 9; i++)
+    {
+        for (int j = 0; j < 9; j++)
+        {
+            grid[i][j] = 0;
+        }
+    }
+    cout << "\n All the grid locations are initialise to zero\n";
+}
+
+void sudoku::initializeSudokuGrid()
+{
+    char x = 'y';
+    while (x == 'y')
+    {
+        int row, col, var;
+        cout<< "\n Enter the row,column and integer in the box(that is 1-9 numbers )\n";
+        cin >> row;
+        cin >> col;
+        cin >> var;
+        grid[row][col] = var;
+        cout<< "\n Do you want to enter the numbers into the boxs enter 'y' else enter 'n' : ";
+        cin >> x;
+    }
+}
+
+void sudoku::printSudokuGrid()
+{
+    cout << "\n";
+    for (int i = 0; i < 9; i++)
+    {
+        for (int j = 0; j < 9; j++)
+        {
+            if(j == 3 || j == 6)
+            cout << " | ";
+            cout << grid[i][j] << " ";
+        }
+        if(i == 2 || i == 5){
+         cout << endl;
+         for(int i = 0; i<9; i++)
+            cout << "---";
+      }
+        cout << "\n";
+    }
+}
+
+bool sudoku::solveSudoku()
+{
+    int row, col;
+    if (findEmptyGridSlot(row, col))
+    {
+        for (int num = 1; num <= 9; num++)
+        {
+            if (canPlaceNum(row, col, num))
+            {
+                grid[row][col] = num;
+                if (solveSudoku()) //recursive call
+                    return true;
+                grid[row][col] = 0;
+            }
+        }
+        return false; //backtrack
+    }
+    else
+        return true; //there are no empty slots
+}
+
+bool sudoku::numAlreadyInRow(int row, int num)
+{
+    for (int i = 0; i < 9; i++)
+    {
+        if (num != 0 && grid[row][i] == num)
+            return true;
+    }
+    return false;
+}
+
+bool sudoku::numAlreadyInCol(int col, int num)
+{
+    for (int i = 0; i < 9; i++)
+    {
+        if (num != 0 && grid[i][col] == num)
+            return true;
+    }
+    return false;
+}
+
+bool sudoku::canPlaceNum(int row, int col, int num)
+{
+    if (!numAlreadyInRow(row, num))
+    {
+        if (!numAlreadyInCol(col, num))
+        {
+            int smallGridRow = row - row % 3;
+            int smallGridCol = col - col % 3;
+            if (!numAlreadyInBox(smallGridRow, smallGridCol, num))
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+bool sudoku::numAlreadyInBox(int smallGridRow, int smallGridCol, int num)
+{
+    for (int i = 0; i < 3; i++)
+    {
+        for (int j = 0; j < 3; j++)
+        {
+            if (grid[i + smallGridRow][j + smallGridCol] == num)
+                return true;
+        }
+    }
+    return false;
+}
+
+bool sudoku::findEmptyGridSlot(int &row, int &col)
+{
+    for ( row = 0; row < 9; row++)
+    {
+        for ( col = 0; col < 9; col++)
+        {
+            if (grid[row][col] == 0)
+                return true;
+        }
+    }
+    return false;
+}
+
+int main()
+{
+    sudoku s;
+    s.printSudokuGrid();
+    s.initializeSudokuGrid();
+    s.printSudokuGrid();
+    cout << "\n After solving the problem : \n";
+    if (s.solveSudoku())
+        s.printSudokuGrid();
+    else
+        cout << "\n Solution doesnt exist for this type of solution \n";
+    return 0;
+}
+
